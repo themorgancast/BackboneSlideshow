@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Get Your Git Together: A Git Slideshow</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="stylesheet" href="styles/base.css"/>
+    <link rel="stylesheet" href="styles/skeleton.css"/>
+    <link rel="stylesheet" href="styles/layout.css"/>
+    <link rel="stylesheet" href="styles/font-awesome.min.css"/>
+
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div id="slide-content">
+
+</div>
+
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="lib/underscore.js"></script>
+<script type="text/javascript" src="lib/backbone.js"></script>
+<script>
+
+
+    var SlideModel = Backbone.Model.extend({
+        defaults: {
+            header: 'Let\'s get our Git together!',
+            images: [],
+            links: [],
+            copy: 'Here is some sample copy.'
+        }
+    });
+
+    var SlideCollection = Backbone.Collection.extend({
+        model: SlideModel
+    });
+
+    var slideCollection = new SlideCollection();
+
+    var slideList = [
+        {
+            header: 'WTF is Git and Why Does it Matter',
+            images: ['http://i.imgur.com/OJx87.png'],
+            links: ['http://www.git-scm.com', 'http://git-scm.com/book/en/Distributed-Git-Distributed-Workflow', 'http://redmonk.com/sogrady/2013/12/19/dvcs-and-git-2013/'],
+            copy: 'Git is a Distributed Version Control System. It does not depend on a central server. It is open source. Usage has increased signficiantly since its inception in 2005 (and especially since 2009).<br/>' +
+                    '<br/><br/>' +
+                    'The Radness:<br/>' +
+                    '<ul>' +
+                    '<li>You only need to hit the server when you push to or pull from a repo*. This reduces latency and allows teams to continue working even if a server is down.</li>' +
+                    '<li>You can work from anywhere as long as you can access your local repository. You don\'t even need interwebz to do it.</li>' +
+                    '<li>Quickly and easily view code changes in a GUI, or the command line if you\'re a masochist.</li>' +
+                    '<li>Reduces project risk. The more frequently changes are committed, the less the chance of a colossal fuckup.</li>' +
+                    '<li>Every developer has full, authoritative history of each repository.</li>' +
+                    '<li>Git\'s workflow strongly supports branching. You keep your original working directory clean and work within branches to minimize risk and conflicts.</li>' +
+                    '</ul>' +
+                    '<small>* Okay there are a couple edge cases but we aren\'t discussing those here.</small>'
+        },
+        {
+            header: 'Git Workflow',
+            images: ['http://git-scm.com/figures/18333fig0201-tn.png'],
+            links: ['http://git-scm.com/book/en/Getting-Started-Installing-Git', 'http://git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository', 'https://github.com/morganwhaley?tab=repositories', 'http://xkcd.com/1296/'],
+            copy: 'First you need to <a href="http://git-scm.com/book/en/Getting-Started-Installing-Git" target="_blank">install git</a>. Then you create a repository in any directory with three lines:<br/>' +
+                    '<pre>git init</pre>' +
+                    '<pre>git add .</pre>' +
+                    '<pre>git commit -m "Haaaaands"</pre>' +
+                    '<br/><br/>' +
+                    '<p>' +
+                    'Server Stuff: Push, Clone, Pull, Fetch, Merge, WTF Am I Doing?<br/><br/>' +
+                    'All these commands hit the server. In a nutshell:</p>' +
+                    '<ul>' +
+                    '<li>git push: Pushes your changes up to a specified directory.</li>' +
+                    '<li>git clone: Equivalent of SVN Checkout. Copies down most current copy of a repo to a new local working directory. This copies down history, branches, etc.</li>' +
+                    '<li>git pull: Does a git fetch followed by git merge.</li>' +
+                    '<li>git fetch: Gathers commit history and allows you to review before merging changes, allowing you to review or keep working.</li>' +
+                    '<li>git merge: Integrate your commits with the master branch. At this point you can review as needed.</li>' +
+                    '</ul>'
+        },
+        {
+            header: 'Git GUIs',
+            images: ['http://integerdigital.com/morgan/GetYourGit/img/holyshitthatiscrazy.png', 'http://github-images.s3.amazonaws.com/blog/2011/mac-1.1-screenshots/hunks-window-full.png', 'http://brotherbard.com/gitx/gitx_screenshot_2.jpg'],
+            links: ['https://mac.github.com/', 'http://gitx.frim.nl/', 'http://git-scm.com/book/en/Git-Basics-Viewing-the-Commit-History'],
+            copy: 'Command line is kind of a bitch and makes reading history and diffs kind of cumbersome. Screw that.<br/>' +
+                    'Git uses chunking vs entire files so viewing diffs = TEH AWSUM.<br/>' +
+                    'The two GUIs I dig for MacOS are GitX and GitHub for Mac. Both are free.<br/>' +
+                    'Check your IDE. Eclipse, JetBrains, and SublimeText all have plugins for Git integration'
+        },
+        {
+            header: 'HALPful Links',
+            images: [],
+            links: ['http://git-scm.com/videos', 'https://training.github.com/resources/videos/', 'https://try.github.io/levels/1/challenges/1', 'http://explainshell.com/', 'http://git-scm.com/docs/git-help'],
+            copy: 'Here are a bunch of extra links that are totally helpful for figuring out WTF is going on.'
+        }
+    ];
+
+    slideCollection.reset(slideList);
+
+    var SlideView = Backbone.View.extend({
+        el: '#slide-content',
+        index: 0,
+        events: {
+            "click .next" : "nextSlide",
+            "click .previous" : "previousSlide"
+        },
+        slideTemplate: _.template(
+                        '<h1><%= header %></h1>' +
+                        '<div id="navigation">' +
+                        '<i class="next fa fa-caret-square-o-right fa-2x"></i>' +
+                        '<i class="previous fa fa-caret-square-o-left fa-2x"></i>' +
+                        '</div>' +
+                        '<div class="body-content">' +
+                        '<p><%= copy %></p>' +
+                        '<div class="images">' +
+                        '<% _.each(images, function(image){ %>' +
+                        '<img src="<%= _.escape(image) %>" /><br/>' +
+                        '<% }); %>' +
+                        '</div>' +
+                        '</div>' +
+                        '<h3>HALP</h3>' +
+                        '<% _.each(links, function(link){ %>' +
+                        '<a href="<%= _.escape(link) %>" target="_blank"><%=link %></a><br/>' +
+                        '<% }); %>'
+        ),
+        initialize: function() {
+            this.render();
+        },
+        render: function() {
+            this.startSlidesFromZero();
+            return this;
+        },
+        startSlidesFromZero: function() {
+            var attributes = this.collection.toJSON();
+            this.$el.html(this.slideTemplate(attributes[0]));
+            return this;
+        },
+        nextSlide: function() {
+            var attributes = this.collection.toJSON();
+            this.index++;
+            if (this.index < this.collection.length) {
+                this.$el.html(this.slideTemplate(attributes[this.index]));
+            }
+            else {
+                this.index = 0;
+                this.startSlidesFromZero();
+            }
+            return this;
+        },
+        previousSlide: function() {
+            var attributes = this.collection.toJSON();
+            //console.log(this.index);
+            this.index--;
+            if (this.index >= 0) {
+                this.$el.html(this.slideTemplate(attributes[this.index]));
+            }
+            else {
+                this.index = attributes.length - 1;
+                this.$el.html(this.slideTemplate(attributes[this.index]));
+            }
+            return this;
+        }
+    });
+
+    var slideView = new SlideView({collection: slideCollection});
+
+
+</script>
+
+</body>
+</html>
